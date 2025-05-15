@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const {routes:approutes} = require('./routes/approutes');
 const connectDB = require('./config/dbconnect');
+const docToPdfRoutes = require('./routes/docToPdfRoutes');
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', approutes);
+app.use('/api/docs', docToPdfRoutes);
 
 
 app.listen(PORT, () => {
