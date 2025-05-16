@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const ConvertedFile = require('../models/ConvertedFile');
+const mongoose = require('mongoose');
+
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
