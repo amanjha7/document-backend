@@ -78,6 +78,10 @@ const waitForFile = (filePath, timeout = 15000) => {
 
 router.get('/download/:id', async (req, res) => {
   try {
+    if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid or missing ID' });
+    }
+
     const file = await ConvertedFile.findById(req.params.id);
     if (!file) return res.status(404).send('File not found or expired');
 
