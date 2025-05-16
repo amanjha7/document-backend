@@ -9,8 +9,8 @@ const docToPdfRoutes = require('./routes/docToPdfRoutes');
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5000;
-// const MONGO_URI = process.env.MONGO_URI;
-// connectDB(MONGO_URI);
+const MONGO_URI = process.env.MONGO_URI;
+connectDB(MONGO_URI);
 
 app.use(cors());
 app.use(express.json());
