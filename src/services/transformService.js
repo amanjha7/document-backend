@@ -5,6 +5,7 @@ const path = require('path');
 const { exec } = require('child_process');
 const ConvertedFile = require('../models/ConvertedFile');
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 exports.docToPdfController = async (buffer,originalname)=>{
     try{
@@ -92,3 +93,39 @@ exports.getDocToPdfService = async (id)=>{
         throw err;
     }
 }
+
+exports.pdfToDocService = async (buffer, originalname) => {
+  try {
+    logger.info('Entering pdfToDocService()');
+
+    const tempDir = path.join(__dirname, '../../temp');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    const uniqueId = uuidv4();
+    const inputPath = path.join(tempDir, `${uniqueId}.pdf`);
+    const outputPath = path.join(tempDir, `${uniqueId}.docx`);
+
+    fs.writeFileSync(inputPath, buffer);
+
+    const command = `libreoffice --headless --convert-to docx --outdir ${tempDir} ${inputPath}`;
+
+    return new Promise((resolve, reject) => {
+      exec(command, (err) => {
+        if (err) {
+          logger.error('LibreOffice conversion failed', err);
+          fs.unlinkSync(inputPath);
+          return reject(err);
+        }
+
+        const filename = originalname.replace(/\.pdf$/i, '') + '.docx';
+        resolve({ inputPath, outputPath, filename });
+      });
+    });
+
+  } catch (err) {
+    logger.error('Error Occurred at pdfToDocService()', err);
+    throw err;
+  }
+};

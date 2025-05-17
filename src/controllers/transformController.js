@@ -1,5 +1,5 @@
 const logger = require('../utils/logger')
-const { docToPdfController, getDocToPdfService } = require('./../services/transformService')
+const { docToPdfController, getDocToPdfService, pdfToDocService } = require('./../services/transformService')
 
 exports.docToPdfController = async (req,res)=>{
     try{
@@ -29,3 +29,21 @@ exports.getMyDocument = async (req,res) => {
         logger.info("Leaving getMyDocument()");
     }
 }
+
+exports.pdfToDocController = async (req, res) => {
+  try {
+    logger.info("Entering pdfToDocController()");
+    const { buffer, originalname } = req.file;
+
+    const { inputPath, outputPath, filename } = await pdfToDocService(buffer, originalname);
+
+    res.download(outputPath, filename, (err) => {
+      fs.unlinkSync(inputPath);
+      fs.unlinkSync(outputPath);
+    });
+
+  } catch (err) {
+    logger.error("Error Occurred at pdfToDocController()", err);
+    res.status(500).json({ message: 'Could Not Convert To DOCX.' });
+  }
+};

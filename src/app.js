@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const {routes:approutes} = require('./routes/approutes');
 const connectDB = require('./config/dbconnect');
-const docToPdfRoutes = require('./routes/docToPdfRoutes');
+const transformRoutes = require('./routes/transformRoutes');
 
 const app = express();
 dotenv.config();
@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/docs', docToPdfRoutes);
+app.use('/api/docs', transformRoutes);
 app.use('/api', approutes);
 
 
