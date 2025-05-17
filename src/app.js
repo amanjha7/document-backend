@@ -17,8 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', approutes);
 app.use('/api/docs', docToPdfRoutes);
+app.use('/api', approutes);
 
 
 app.listen(PORT, () => {
