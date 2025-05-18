@@ -1,5 +1,5 @@
 const logger = require('../utils/logger')
-const { docToPdfController, getDocToPdfService, pdfToDocService } = require('./../services/transformService')
+const { docToPdfController, getDocToPdfService, getPdfFileService, pdfToDocService } = require('./../services/transformService')
 
 exports.docToPdfController = async (req,res)=>{
     try{
@@ -34,16 +34,27 @@ exports.pdfToDocController = async (req, res) => {
   try {
     logger.info("Entering pdfToDocController()");
     const { buffer, originalname } = req.file;
-
-    const { inputPath, outputPath, filename } = await pdfToDocService(buffer, originalname);
-
-    res.download(outputPath, filename, (err) => {
-      fs.unlinkSync(inputPath);
-      fs.unlinkSync(outputPath);
-    });
-
+    const saved = await pdfToDocService(buffer, originalname);
+    return res.status(200).json({ message: 'Successfully converted to DOCX.', id: saved._id });
   } catch (err) {
-    logger.error("Error Occurred at pdfToDocController()", err);
-    res.status(500).json({ message: 'Could Not Convert To DOCX.' });
+    logger.error("Error occurred in pdfToDocController() ", err);
+    return res.status(500).json({ message: 'Error occurred while converting to DOCX.' });
+  } finally {
+    logger.info("Leaving pdfToDocController()");
   }
 };
+
+exports.getMyPdfDocument = async (req,res) => {
+    try{
+        logger.info("Entering getMyDocument()");
+        const id = req.params.id 
+        const  {header, pdfBuffer} = await getPdfFileService(id)
+        res.set(header);
+        res.send(pdfBuffer);
+    }catch(error){
+        logger.error("Error getting getMyDocument()");
+        res.status(500).json({message:'Download Failed'});
+    } finally {
+        logger.info("Leaving getMyDocument()");
+    }
+}

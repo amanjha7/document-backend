@@ -1,5 +1,5 @@
 const express = require('express');
-const { docToPdfController, getMyDocument, pdfToDocController } = require("../controllers/transformController")
+const { docToPdfController, getMyDocument, pdfToDocController, getMyPdfDocument } = require("../controllers/transformController")
 
 
 const router = express.Router();
@@ -9,8 +9,8 @@ router.post('/convert-doc-to-pdf', upload.single('file'), docToPdfController);
 
 router.get('/download/:id', getMyDocument);
 
-router.post('/convert-pdf-to-doc',upload.single('file'), pdfToDocController);
+router.post('/pdf-to-doc',upload.single('file'), pdfToDocController);
 
-router.get('/download-pdf/:id');
+router.get('/download-pdf/:id', getMyPdfDocument);
 
 module.exports = router;

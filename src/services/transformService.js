@@ -94,38 +94,83 @@ exports.getDocToPdfService = async (id)=>{
     }
 }
 
-exports.pdfToDocService = async (buffer, originalname) => {
+exports.getPdfFileService = async (id) => {
   try {
-    logger.info('Entering pdfToDocService()');
-
-    const tempDir = path.join(__dirname, '../../temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid ID');
     }
 
-    const uniqueId = uuidv4();
-    const inputPath = path.join(tempDir, `${uniqueId}.pdf`);
-    const outputPath = path.join(tempDir, `${uniqueId}.docx`);
+    const file = await ConvertedFile.findById(id);
+    if (!file) {
+      throw new Error("File not found");
+    }
 
-    fs.writeFileSync(inputPath, buffer);
-
-    const command = `libreoffice --headless --convert-to docx --outdir ${tempDir} ${inputPath}`;
-
-    return new Promise((resolve, reject) => {
-      exec(command, (err) => {
-        if (err) {
-          logger.error('LibreOffice conversion failed', err);
-          fs.unlinkSync(inputPath);
-          return reject(err);
-        }
-
-        const filename = originalname.replace(/\.pdf$/i, '') + '.docx';
-        resolve({ inputPath, outputPath, filename });
-      });
-    });
-
+    return {
+      header: {
+        'Content-Type': file.mimetype,
+        'Content-Disposition': `attachment; filename="${file.filename}"`,
+      },
+      docxBuffer: file.fileBuffer
+    };
   } catch (err) {
-    logger.error('Error Occurred at pdfToDocService()', err);
+    logger.error("Error in getPdfToDocService()", err);
     throw err;
   }
 };
+
+exports.pdfToDocService = async (buffer, originalname) => {
+  try {
+    logger.info("Entering pdfToDocService()");
+    const tempDir = path.join(__dirname, '../../temp');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const inputFile = path.join(tempDir, originalname);
+    const outputFile = inputFile.replace(/\.[^/.]+$/, '.docx');
+
+    fs.writeFileSync(inputFile, buffer);
+
+    const convertCommand = `libreoffice --headless --convert-to docx --outdir "${tempDir}" "${inputFile}"`;
+
+    const saved = await new Promise((resolve, reject) => {
+      exec(convertCommand, async (error, stdout, stderr) => {
+        logger.info('LibreOffice stdout:', stdout);
+        logger.error('LibreOffice stderr:', stderr);
+
+        if (error) {
+          logger.error('LibreOffice conversion error:', error);
+          reject(new Error("LibreOffice conversion failed"));
+          return;
+        }
+
+        try {
+          await waitForFile(outputFile, 15000);
+
+          const docxBuffer = fs.readFileSync(outputFile);
+
+          const saved = await ConvertedFile.create({
+            filename: originalname.replace(/\.[^/.]+$/, '.docx'),
+            mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            fileBuffer: docxBuffer, // Use a generic field name
+            createdAt: new Date(),
+          });
+
+          fs.unlinkSync(inputFile);
+          fs.unlinkSync(outputFile);
+
+          resolve(saved);
+        } catch (waitErr) {
+          logger.error('DOCX file did not appear in time:', waitErr);
+          reject(new Error("File creation timeout"));
+        }
+      });
+    });
+
+    return saved;
+  } catch (err) {
+    logger.error('Error occurred at pdfToDocService()', err);
+    throw err;
+  }
+};
+
