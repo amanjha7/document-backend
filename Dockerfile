@@ -1,22 +1,21 @@
-# Use Puppeteer base image (includes Chromium + dependencies)
-FROM ghcr.io/puppeteer/puppeteer:latest
+# Use official Node.js base image
+FROM node:20
 
-# Optional: Install LibreOffice if needed
-RUN apt-get update && apt-get install -y libreoffice && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install LibreOffice
+RUN apt-get update && apt-get install -y libreoffice
 
-# Set working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy dependencies and install
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy application code
+# Copy the rest of your code
 COPY . .
 
-# Expose the app port
+# Expose your app port
 EXPOSE 5000
 
-# Start the Node app
+# Start your app
 CMD ["node", "src/app.js"]
