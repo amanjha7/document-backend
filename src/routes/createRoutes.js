@@ -9,14 +9,19 @@ router.post('/generate-pdf', async (req, res) => {
 
   try {
     logger.info("Entering generate-pdf route");
+
     if (!htmlContent) {
       return res.status(400).send('HTML content is required');
     }
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
 
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
+
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true
@@ -36,6 +41,3 @@ router.post('/generate-pdf', async (req, res) => {
     res.status(500).send('Failed to generate PDF');
   }
 });
-
-
-module.exports = router;
