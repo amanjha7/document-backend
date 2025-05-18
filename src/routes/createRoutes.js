@@ -41,3 +41,6 @@ router.post('/generate-pdf', async (req, res) => {
     res.status(500).send('Failed to generate PDF');
   }
 });
+
+
+module.exports = router;
