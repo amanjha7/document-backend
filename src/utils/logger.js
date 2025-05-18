@@ -1,16 +1,16 @@
 // logger.js
 
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 
 // Log file path
-const logDir = path.join(__dirname, 'logs');
-const logFile = path.join(logDir, 'app.log');
+// const logDir = path.join(__dirname, 'logs');
+// const logFile = path.join(logDir, 'app.log');
 
 // Ensure log directory exists
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+// if (!fs.existsSync(logDir)) {
+//   // fs.mkdirSync(logDir);
+// }
 
 // Format timestamp
 const getTimestamp = () => {
@@ -31,7 +31,7 @@ const writeLog = (level, message) => {
   }
 
   // Append to log file
-  fs.appendFileSync(logFile, logMessage + '\n', 'utf8');
+  // fs.appendFileSync(logFile, logMessage + '\n', 'utf8');
 };
 
 // Export logger object
