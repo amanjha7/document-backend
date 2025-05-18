@@ -5,7 +5,9 @@ const dotenv = require('dotenv');
 const {routes:approutes} = require('./routes/approutes');
 const connectDB = require('./config/dbconnect');
 const transformRoutes = require('./routes/transformRoutes');
+const bodyParser = require('body-parser');
 
+const createRoutes = require('./routes/createRoutes');
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -14,10 +16,12 @@ connectDB(MONGO_URI);
 
 
 app.use(cors());
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/docs', transformRoutes);
+app.use('/api/create', createRoutes);
 app.use('/api', approutes);
 
 

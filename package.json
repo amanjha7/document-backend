@@ -9,6 +9,7 @@
   "dependencies": {
     "aspose-pdf-js": "github:aspose-pdf/Aspose.PDF-for-JavaScript-via-CPP",
     "axios": "^1.9.0",
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "docx-pdf": "^0.0.1",
     "dotenv": "^16.5.0",
@@ -23,6 +24,7 @@
     "multer": "^1.4.5-lts.2",
     "nodemon": "^3.1.10",
     "pdf-lib": "^1.17.1",
+    "puppeteer": "^24.8.2",
     "uuid": "^11.1.0"
   }
 }
