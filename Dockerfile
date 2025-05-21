@@ -6,10 +6,10 @@ USER root
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libreoffice \            # Optional, if you\'re handling office docs
-    graphicsmagick \         # GraphicsMagick for image manipulation
-    tesseract-ocr \          # Tesseract OCR engine
-    curl \                   # For debugging/downloading
+    libreoffice \           
+    graphicsmagick \         
+    tesseract-ocr \         
+    curl \                  
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
