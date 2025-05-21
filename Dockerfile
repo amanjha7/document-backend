@@ -22,6 +22,9 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Create uploads directory and give ownership to pptruser
+RUN mkdir -p /app/uploads && chown -R pptruser:pptruser /app
+
 # Revert to a safer non-root user (recommended)
 USER pptruser
 
