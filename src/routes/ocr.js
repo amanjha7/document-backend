@@ -5,6 +5,7 @@ const { fromPath } = require('pdf2pic');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { JSDOM } = require('jsdom');
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -56,12 +57,9 @@ router.post('/extract-text', upload.single('file'), async (req, res) => {
       fs.unlinkSync(filePath);
       fs.rmdirSync(tempDir);
     } else {
-      const { data } = await Tesseract.recognize(filePath, 'eng', {
-        preserve_interword_spaces: 1,
-        tessedit_create_hocr: 1, // Enable hOCR output
-        hocr_font_info: 1
-      });
-      extractedText = this.processHOCR(data.hocr); // Implement hOCR parser
+      const { data } = await Tesseract.recognize(filePath, 'eng');
+      extractedText = data.text || '';
+      // extractedText = processHOCR(data.hocr); // Implement hOCR parser
     }
 
     res.json({ text: extractedText.trim() });
@@ -77,9 +75,8 @@ router.post('/extract-text', upload.single('file'), async (req, res) => {
 });
 
 function processHOCR(hocr) {
-  // Basic hOCR parser - enhance this for better formatting
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(hocr, 'text/html');
+  const dom = new JSDOM(hocr);
+  const doc = dom.window.document;
   const words = doc.querySelectorAll('.ocrx_word');
   
   let result = '';
@@ -89,7 +86,7 @@ function processHOCR(hocr) {
     const italic = word.querySelector('.ocr_em') ? '_' : '';
     result += `${bold}${italic}${text}${italic}${bold} `;
   });
-  
+
   return result;
 }
 
