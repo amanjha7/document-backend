@@ -6,7 +6,7 @@ const {routes:approutes} = require('./routes/approutes');
 const connectDB = require('./config/dbconnect');
 const transformRoutes = require('./routes/transformRoutes');
 const bodyParser = require('body-parser');
-
+const ocrRoutes = require('./routes/ocr');
 const createRoutes = require('./routes/createRoutes');
 const app = express();
 dotenv.config();
@@ -22,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/docs', transformRoutes);
 app.use('/api/create', createRoutes);
+app.use('/api/ocr', ocrRoutes);
 app.use('/api', approutes);
 
 

@@ -141,3 +141,5 @@ temp/
 
 # Remix build output
 .build/
+
+# src/utils/logs
